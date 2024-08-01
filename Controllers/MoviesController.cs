@@ -22,7 +22,6 @@ namespace MvcMovie8.Controllers
         // GET: Movies
         public async Task<IActionResult> Index()
         {
-            //return View(await _context.Movie.ToListAsync());
             var eFContext = _context.Movie.Include(p => p.Genre);
             return View(await eFContext.ToListAsync());
         }
@@ -36,7 +35,9 @@ namespace MvcMovie8.Controllers
             }
 
             var movie = await _context.Movie
+                .Include(p => p.Genre)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (movie == null)
             {
                 return NotFound();
@@ -82,12 +83,14 @@ namespace MvcMovie8.Controllers
             {
                 return NotFound();
             }
+            ViewData["GenreId"] = new SelectList(_context.Genre, "GenreId", "GenreName", movie.GenreId);
             return View(movie);
         }
 
         // POST: Movies/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-model?view=aspnetcore-8.0&tabs=visual-studio
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Price,GenreId")] Movie movie)
@@ -117,6 +120,7 @@ namespace MvcMovie8.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["GenreId"] = new SelectList(_context.Genre, "GenreId", "GenreName", movie.GenreId);
             return View(movie);
         }
 
